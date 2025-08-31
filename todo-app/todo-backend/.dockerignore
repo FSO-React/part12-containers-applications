@@ -1,4 +1,6 @@
 .dockerignore
 .gitignore
+mongo_data
+redis_data
 node_modules
 Dockerfile
