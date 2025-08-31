@@ -4,9 +4,7 @@ WORKDIR /usr/src/app
 
 COPY --chown=node:node . .
 
-RUN npm ci --omit=dev
-
-ENV DEBUG=playground:*
+RUN npm ci 
 
 USER node
 
