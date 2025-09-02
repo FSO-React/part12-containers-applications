@@ -1,0 +1,52 @@
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: example
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: bloglist
+    volumes: 
+      - ./backend/mongo.js:/docker-entrypoint-initdb.d/mongo.js
+      - ./backend/mongo_data:/data/db
+
+  server:
+    image: backend-dev-nginx
+    build:
+      context: ./backend/
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./backend/:/usr/src/app
+      - node_modules_server:/usr/src/app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: 'mongodb://example:example@mongo:27017/bloglist'
+    container_name: backend-dev-nginx
+
+  app:
+    image: frontend-dev-nginx
+    build:
+      context: ./frontend/
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./frontend/:/usr/src/app
+      - node_modules_app:/usr/src/app/node_modules
+    depends_on:
+      - server
+    container_name: frontend-dev-nginx
+
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy
+    depends_on:      
+      - app
+      - server
+
+volumes:
+  mongo_data:
+  node_modules_server:
+  node_modules_app:
